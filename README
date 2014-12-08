@@ -1,0 +1,26 @@
+Jose Vieitez Final Project, Mario Kart
+
+Jose Vieitez
+CSCI4229/5229 Fall 2014
+
+Draws Mario kart world, Driving Car and course. 
+
+I spent a good amount of time making a beautiful world in photoshop, including a ceiling/ sky that looked real, but realized the sky is nearly invisible with the camera settings I created that avoid going “underground.” You can see it, though, by pressing “f.”
+Key bindings
+  c          Go into/ out of cockpit view
+  y/Y	     Drive Forward
+  h/H	     Reverse
+  g/G	     Turn Left
+  j/J	     Turn Right
+  l/L        Toggle lighting on/off
+  f/F        Toggle flight/static mode to see the created world 
+  a          Toggle axes
+  arrows     Change view angle
+  PgDn/PgUp  Zoom in and out
+  0          Reset view angle
+  ESC        Exit
+
+
+Left to do:
+
+Draw kart. Human-controlled motion (I may just go with an automatic path to avoid dealing with collisions, but have to weigh which is more efficient). More objects on the road. Shadows if I can apply what we learn this week. 
