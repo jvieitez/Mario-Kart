@@ -30,7 +30,7 @@ int    F16[3];   //  F16 display list
 int    th=90;     //  Azimuth of view angle
 int    ph=15;     //  Elevation of view angle
 int    zh=0;     //  Azimuth of light
-double Yl=2;     //  Elevation of light
+double Yl=8;     //  Elevation of light
 double roll=0;   //  Roll angle
 double pitch=0;  //  Pitch angle
 double yaw=0;    //  Yaw angle
@@ -64,13 +64,42 @@ double pitX = 0;  // Angles for the cockpit view
 double pitY = 0;  // Angles for the cockpit view
 double pitZ = 0;  // Angles for the cockpit view
 int pit = 0;      // go into cockpit view
+// float Position[4];  //= {5*Cos(zh),Yl,5*Sin(zh),1};
 
+// for shadows
+#define Dfloor  8
+#define Yfloor 0.1
+float N[] = {0, -1, 0}; // Normal vector for the plane
+float E[] = {0, Yfloor, 0 }; // Point of the plane
 
 
 // extern void DrawModel();
 // PFNGLLOCKARRAYSEXTPROC     glLockArraysEXT   = NULL;
 // PFNGLUNLOCKARRAYSEXTPROC   glUnlockArraysEXT = NULL;
 
+
+/* Multiply the current ModelView-Matrix with a shadow-projetion matrix.
+ *
+ * L is the position of the light source
+ * E is a point within the plane on which the shadow is to be projected.  
+ * N is the normal vector of the plane.
+ *
+ * Everything that is drawn after this call is "squashed" down to the plane.
+ */
+void ShadowProjection(float L[4], float E[4], float N[4])
+{
+   float mat[16];
+   float e = E[0]*N[0] + E[1]*N[1] + E[2]*N[2];
+   float l = L[0]*N[0] + L[1]*N[1] + L[2]*N[2];
+   float c = e - l;
+   //  Create the matrix.
+   mat[0] = N[0]*L[0]+c; mat[4] = N[1]*L[0];   mat[8]  = N[2]*L[0];   mat[12] = -e*L[0];
+   mat[1] = N[0]*L[1];   mat[5] = N[1]*L[1]+c; mat[9]  = N[2]*L[1];   mat[13] = -e*L[1];
+   mat[2] = N[0]*L[2];   mat[6] = N[1]*L[2];   mat[10] = N[2]*L[2]+c; mat[14] = -e*L[2];
+   mat[3] = N[0];        mat[7] = N[1];        mat[11] = N[2];        mat[15] = -l;
+   //  Multiply modelview matrix
+   glMultMatrixf(mat);
+}
 /*
  *  Draw Set of Facets
  */
@@ -425,6 +454,84 @@ static void quest(double x,double y,double z,
    glPopMatrix();
    glDisable(GL_TEXTURE_2D);
 }
+static void shadowquest(double x,double y,double z,
+                 double dx,double dy,double dz,
+                 double th)
+{
+   //  Set specular color to white
+   float white[] = {1,1,1,1};
+   // float Emission2[]  = {0.0,1.0,1.0,1.0};
+   // glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,shinyvec);
+   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
+   // glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);//Emission2);
+   //  Save transformation
+   glPushMatrix();
+   //  Offset, scale and rotate
+   glTranslated(x,y,z);
+   glRotated(th,0,1,0);
+   glScaled(dx,dy,dz);
+   //  Enable textures
+   glEnable(GL_TEXTURE_2D);
+   glColor3f(1,1,1);
+   glBindTexture(GL_TEXTURE_2D,sky[3]);
+   //  Front
+   glColor3f(0,0,0);
+   glBegin(GL_QUADS);
+   glNormal3f( 0, 0, 1);
+   glTexCoord2f(0,0); glVertex3f(-1,-1, 1);
+   glTexCoord2f(1,0); glVertex3f(+1,-1, 1);
+   glTexCoord2f(1,1); glVertex3f(+1,+1, 1);
+   glTexCoord2f(0,1); glVertex3f(-1,+1, 1);
+   glEnd();
+   //  Back
+   glColor3f(0,0,0);
+   glBegin(GL_QUADS);
+   glNormal3f( 0, 0,-1);
+   glTexCoord2f(0,0); glVertex3f(+1,-1,-1);
+   glTexCoord2f(1,0); glVertex3f(-1,-1,-1);
+   glTexCoord2f(1,1); glVertex3f(-1,+1,-1);
+   glTexCoord2f(0,1); glVertex3f(+1,+1,-1);
+   glEnd();
+   //  Right
+   glColor3f(0,0,0);
+   glBegin(GL_QUADS);
+   glNormal3f(+1, 0, 0);
+   glTexCoord2f(0,0); glVertex3f(+1,-1,+1);
+   glTexCoord2f(1,0); glVertex3f(+1,-1,-1);
+   glTexCoord2f(1,1); glVertex3f(+1,+1,-1);
+   glTexCoord2f(0,1); glVertex3f(+1,+1,+1);
+   glEnd();
+   //  Left
+   glColor3f(0,0,0);
+   glBegin(GL_QUADS);
+   glNormal3f(-1, 0, 0);
+   glTexCoord2f(0,0); glVertex3f(-1,-1,-1);
+   glTexCoord2f(1,0); glVertex3f(-1,-1,+1);
+   glTexCoord2f(1,1); glVertex3f(-1,+1,+1);
+   glTexCoord2f(0,1); glVertex3f(-1,+1,-1);
+   glEnd();
+   //  Top
+   glColor3f(0,0,0);
+   glBegin(GL_QUADS);
+   glNormal3f( 0,+1, 0);
+   glTexCoord2f(0,0); glVertex3f(-1,+1,+1);
+   glTexCoord2f(1,0); glVertex3f(+1,+1,+1);
+   glTexCoord2f(1,1); glVertex3f(+1,+1,-1);
+   glTexCoord2f(0,1); glVertex3f(-1,+1,-1);
+   glEnd();
+   //  Bottom
+   glColor3f(0,0,0);
+   glBegin(GL_QUADS);
+   glNormal3f( 0,-1, 0);
+   glTexCoord2f(0,0); glVertex3f(-1,-1,-1);
+   glTexCoord2f(1,0); glVertex3f(+1,-1,-1);
+   glTexCoord2f(1,1); glVertex3f(+1,-1,+1);
+   glTexCoord2f(0,1); glVertex3f(-1,-1,+1);
+   glEnd();
+   //  Undo transformations and textures
+   glPopMatrix();
+   glDisable(GL_TEXTURE_2D);
+}
 // kart drawing
 static void kart(double x,double y,double z,
                  double dx,double dy,double dz,
@@ -455,63 +562,10 @@ static void kart(double x,double y,double z,
    glPopMatrix();
    // glDisable(GL_TEXTURE_2D); //*
 }
-
-/*
- *  OpenGL (GLUT) calls this routine to display the scene
- */
-void display()
+// Draw Boxes making up barrier 
+void hedges() 
 {
-   const double len=2.5;  //  Length of axes
-   //  Erase the window and the depth buffer
-   glClearColor(0,0.3,0.7,0);
-   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-   //  Enable Z-buffering in OpenGL
-   glEnable(GL_DEPTH_TEST);
-   glEnable(GL_CULL_FACE);
 
-   //  Undo previous transformations
-   glLoadIdentity();
-   //  Perspective - set eye position
-   gluLookAt(Ex,Ey,Ez , Ox,Oy,Oz , Ux,Uy,Uz);
-
-   //  Draw sky
-   if (box) Sky(3.5*dim);
-
-   //  Light switch
-   if (light)
-   {
-      //  Translate intensity to color vectors
-      float F = (light==2) ? 1 : 0.3;
-      float Ambient[]   = {0.3*F,0.3*F,0.3*F,1};
-      float Diffuse[]   = {0.5*F,0.5*F,0.5*F,1};
-      float Specular[]  = {1.0*F,1.0*F,1.0*F,1};
-      float white[]     = {1,1,1,1};
-      //  Light direction
-      float Position[]  = {5*Cos(zh),Yl,5*Sin(zh),1};
-      //  Draw light position as ball (still no lighting here)
-      ball(Position[0],Position[1],Position[2] , 0.1);
-      //  Enable lighting with normalization
-      glEnable(GL_LIGHTING);
-      glEnable(GL_NORMALIZE);
-      //  glColor sets ambient and diffuse color materials
-      glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-      glEnable(GL_COLOR_MATERIAL);
-      //  Enable light 0
-      glEnable(GL_LIGHT0);
-      glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
-      glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
-      glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
-      glLightfv(GL_LIGHT0,GL_POSITION,Position);
-      glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,32.0f);
-      glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
-   }
-   else
-      glDisable(GL_LIGHTING);
-
-   //  Draw flight of F16s
-   DrawFlight(X,Y,Z , Dx,Dy,Dz , Ux,Uy,Uz);
-   kart(X,Y+3,Z,3,3,3,0);
-   // Draw Boxes making up barrier 
    // variables: at [(x,y,z) dimentions,(dx,dy,dz)], rotated th about the y axis
    // row on tech 
    for (int x=0;x<25;x++){
@@ -589,7 +643,7 @@ void display()
 
 
 
-   // far left wall
+   // far left wall vert
    for (int x=0;x<24;x++){
       rect(-23+1.70*x,0,-19.5,  .85,.6,.60, 0);
    }
@@ -603,39 +657,104 @@ void display()
          driveZ += 1;
    }
 
-   // top right wall
-   for (int x=0;x<15;x++){
+   // top right wall horizontal
+   for (int x=0;x<16;x++){
       rect(-21.8+(1.70*25),0,-1.9+1.70*x,  .85,.6,.60, 90);
    }
-   if ((18<=X) && (X<=20.0) && (-1.9<=Z) && (Z<=-1.9+1.70*15)) { // 8.9 10.1
+   if ((18<=X) && (X<=20.0) && (-1.9<=Z) && (Z<=-1.9+1.70*16)) { // 8.9 10.1
          driveX -= 1;
          driveZ -= 1;
    }
-   if ((20.9 >=X) && (X>=19.0) && (-1.9<=Z) && (Z<=-1.9+1.70*15)) { // 8.9 10.1
+   if ((20.9 >=X) && (X>=19.0) && (-1.9<=Z) && (Z<=-1.9+1.70*16)) { // 8.9 10.1
          driveX += 1;
          driveZ += 1;
    }
-   // mid right wall
+   // mid right wall horizontal
    for (int x=0;x<15;x++){
-      rect(-42.8+(1.70*25),0,(3.5*dim)-(1.70*x),  .85,.6,.60, 90);
+      rect(-1.3,0,(3.5*dim)-(1.70*x), .85,.6,.60, 90);
    }
-   if ((18<=X) && (X<=20.0) && (-1.9<=Z) && (Z<=-1.9+1.70*15)) { // 8.9 10.1
+   if ((-3.6<=X) && (X<=-1.85) && ((3.5*dim)-(1.70*15)<=Z) && (Z<=3.5*dim)) { // 8.9 10.1
          driveX -= 1;
          driveZ -= 1;
    }
-   if ((20.9 >=X) && (X>=19.0) && (-1.9<=Z) && (Z<=-1.9+1.70*15)) { // 8.9 10.1
+   if ((-1.3 >=X) && (X>=-2.7) && ((3.5*dim)-(1.70*15)<=Z) && (Z<=3.5*dim)) { // 8.9 10.1
          driveX += 1;
          driveZ += 1;
    }
-   // question mark boxes
-   quest(-2.0,0.5,-.1,  .3,.3,.3, 0);
-   quest(1.7,0.5,-.1,  .3,.3,.3, 0);
-   quest(6.7,0.5,.1,  .3,.3,.3, 0);
-   quest(-2.3,0.5,3.0,  .3,.3,.3, 0);
-   quest(.8,0.5,1.1,  .3,.3,.3, 0);
-   quest(-.4,0.5,2.9,  .3,.3,.3, 0);
-   quest(3.6,0.5,2.9,  .3,.3,.3, 0);
-   quest(4.8,0.5,1.1,  .3,.3,.3, 0);
+   // top right wall vertical
+   for (int x=0;x<7;x++){
+      rect(20.2-1.70*x,0,23.8,  .85,.6,.60, 0);
+   }
+   // collision
+   if ((20.2>=X) && (X>=20.1-1.70*7) && (22.1<=Z) && (Z<=23.9)) { 
+         driveX -= 1;
+         driveZ -= 1;
+   }
+   if ((20.2>=X) && (X>=20.1-1.70*7) && (24.8>=Z) && (Z>=23.4)) { 
+         driveX += 1;
+         driveZ += 1;
+   }
+   
+}
+
+/*
+ *  OpenGL (GLUT) calls this routine to display the scene
+ */
+void display()
+{
+   const double len=2.5;  //  Length of axes
+   //  Erase the window and the depth buffer
+   glClearColor(0,0.3,0.7,0);
+   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+   //  Enable Z-buffering in OpenGL
+   glEnable(GL_DEPTH_TEST);
+   glEnable(GL_CULL_FACE);
+
+   //  Undo previous transformations
+   glLoadIdentity();
+   //  Perspective - set eye position
+   gluLookAt(Ex,Ey,Ez , Ox,Oy,Oz , Ux,Uy,Uz);
+
+   //  Draw sky
+   if (box) Sky(3.5*dim);
+
+   //  Light switch
+   // if (light)
+   // {
+   //  Translate intensity to color vectors
+   float F = (light==2) ? 1 : 0.3;
+   float Ambient[]   = {0.3*F,0.3*F,0.3*F,1};
+   // float Diffuse[]   = {0.5*F,0.5*F,0.5*F,1};
+   float Diffuse[]   = {1.0,1.0,1.0,1.0};
+   float Specular[]  = {1.0*F,1.0*F,1.0*F,1};
+   float white[]     = {1,1,1,1};
+   //  Light direction
+   float Position[]  = {10*Cos(zh),Yl,10*Sin(zh),1};
+   //  Draw light position as ball (still no lighting here)
+   ball(Position[0],Position[1],Position[2] , 0.1);
+
+
+   //  Enable lighting with normalization
+   glEnable(GL_LIGHTING);
+   glEnable(GL_NORMALIZE);
+   //  glColor sets ambient and diffuse color materials
+   glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
+   glEnable(GL_COLOR_MATERIAL);
+   //  Enable light 0
+   glEnable(GL_LIGHT0);
+   glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
+   glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
+   glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
+   glLightfv(GL_LIGHT0,GL_POSITION,Position);
+   glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,32.0f);
+   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
+   // }
+   // else
+      // glDisable(GL_LIGHTING);
+
+  
+   hedges();
+   DrawFlight(X,Y,Z , Dx,Dy,Dz , Ux,Uy,Uz);
 
    // collision detection
    // box edges
@@ -647,9 +766,55 @@ void display()
       driveZ -= 1;
    if (Z < -3.5*dim+2)
       driveZ += 1;
+   // question mark boxes
+   quest(-2.0,0.5,-.1,  .3,.3,.3, 0);
+   quest(1.7,0.5,-.1,  .3,.3,.3, 0);
+   quest(6.7,0.5,.1,  .3,.3,.3, 0);
+   quest(-2.3,0.5,3.0,  .3,.3,.3, 0);
+   quest(.8,0.5,1.1,  .3,.3,.3, 0);
+   quest(-.4,0.5,2.9,  .3,.3,.3, 0);
+   quest(3.6,0.5,2.9,  .3,.3,.3, 0);
+   quest(4.8,0.5,1.1,  .3,.3,.3, 0);
 
 
-   
+ // ---
+   // from shadows on other doc
+   //  Save what is glEnabled
+      // causes the stack overflow error. 
+   // glPushAttrib(GL_ENABLE_BIT);
+   // Shadows **
+
+   glDisable(GL_LIGHTING);
+   // glColor3f(0.3,0.3,0.3);
+   //  Blended color
+   // glEnable(GL_BLEND);
+   // glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+   glColor4f(0,0,0,0.4);
+   //  Draw flattened scene
+   glPushMatrix();
+   ShadowProjection(Position,E,N);
+   /*
+   * This is where we insert what needs to have a shadow *****
+   *
+   *
+   */
+   // question mark boxes
+   shadowquest(-2.0,0.5,-.1,  .3,.3,.3, 0);
+   shadowquest(1.7,0.5,-.1,  .3,.3,.3, 0);
+   shadowquest(6.7,0.5,.1,  .3,.3,.3, 0);
+   shadowquest(-2.3,0.5,3.0,  .3,.3,.3, 0);
+   shadowquest(.8,0.5,1.1,  .3,.3,.3, 0);
+   shadowquest(-.4,0.5,2.9,  .3,.3,.3, 0);
+   shadowquest(3.6,0.5,2.9,  .3,.3,.3, 0);
+   shadowquest(4.8,0.5,1.1,  .3,.3,.3, 0);
+    //  Draw flight of F16s
+   DrawFlight(X,Y,Z , Dx,Dy,Dz , Ux,Uy,Uz);
+   hedges();
+   kart(X,Y+3,Z,3,3,3,0);
+   // scene();
+   glPopMatrix();
+// ---
+   /// END INSERT OF WHAT GETS A SHADOW
 
    //  Draw axes
    glDisable(GL_LIGHTING);
@@ -691,8 +856,8 @@ void timer(int toggle)
    if (toggle>0)
       move = !move;
    //  Increment light position
-   else
-      zh = (zh+5)%360;
+   else // changes speed of sun
+      zh = (zh+1)%360;
    //  Animate flight using Lorenz transform
    if (fly)
    {
