@@ -29,7 +29,7 @@ int    light=1;  //  Lighting
 int    F16[3];   //  F16 display list
 int    th=90;     //  Azimuth of view angle
 int    ph=15;     //  Elevation of view angle
-int    zh=0;     //  Azimuth of light
+int    zh=90;     //  Azimuth of light
 double Yl=12.5;     //  Elevation of light
 double roll=0;   //  Roll angle
 double pitch=0;  //  Pitch angle
@@ -39,7 +39,7 @@ int    fov=55;   //  Field of view (for perspective)
 double asp=1;    //  Aspect ratio
 double dim=9.2;  //  Size of world orig 6.5
 int    box=1;    //  Draw sky
-int    sky[5];   //  Sky textures
+int    sky[11];   //  Sky textures
 double X  = 0;   //  Location
 double Y  = 0;   //  Location
 double Z  = 0;   //  Location
@@ -58,8 +58,8 @@ double Oz = 0;   //  LookAt
 double Ux = 1;   //  Up keeping it as 0,1,0 is normal, means up is "up" 
 double Uy = 0;   //  Up
 double Uz = 0;   //  Up
-double driveZ = 0;
-double driveX = 0;
+double driveZ = 2;
+double driveX = -7.4;
 double pitX = 0;  // Angles for the cockpit view
 double pitY = 0;  // Angles for the cockpit view
 double pitZ = 0;  // Angles for the cockpit view
@@ -132,7 +132,8 @@ static void CompileF16(void)
    //  Body list
    F16[0] = glGenLists(1);
    glNewList(F16[0],GL_COMPILE);
-   glColor3f(1,1,1);
+   // glColor3f(1,1,1);
+   glColor4f(1,1,1,0);
    glEnable(GL_TEXTURE_2D);
    glBindTexture(GL_TEXTURE_2D,tex[0]);
    Facets(0);
@@ -142,7 +143,8 @@ static void CompileF16(void)
    //  Engine list
    F16[1] = glGenLists(1);
    glNewList(F16[1],GL_COMPILE);
-   glColor3f(1,1,1);
+   // glColor3f(1,1,1);
+   glColor4f(1,1,1,0);
    glEnable(GL_TEXTURE_2D);
    glBindTexture(GL_TEXTURE_2D,tex[0]);
    Facets(1);
@@ -153,7 +155,7 @@ static void CompileF16(void)
    //  Canopy list
    F16[2] = glGenLists(1);
    glNewList(F16[2],GL_COMPILE);
-   glColor4f(1,1,1,0.33);
+   glColor4f(1,1,1,0);
    glEnable(GL_TEXTURE_2D);
    glBindTexture(GL_TEXTURE_2D,tex[1]);
    glEnable(GL_BLEND);
@@ -174,9 +176,9 @@ static void DrawFlight(double x0,double y0,double z0,
                        double ux,double uy,double uz)
 {
    int i,k;
-   //  Position of members
+   // //  Position of members
    double X[] = {-1.0,+1.0,+0.0,+0.0};
-   double Y[] = {-0.3,+0.3,+0.0,+0.0};
+   double Y[] = {-0.3,-3.3,+0.0,+0.0};
    double Z[] = {+0.0,+0.0,-1.5,+1.5};
    //  Unit vector in direction of flght
    double D0 = sqrt(dx*dx+dy*dy+dz*dz);
@@ -224,7 +226,115 @@ static void DrawFlight(double x0,double y0,double z0,
    glPopMatrix();
 }
 
+/*
+ *  Draw a coin at (x,y,z) radius r thickness 2d
+ *  The resolution is fixed at 36 slices (10 degrees each)
+ */
+static void coin(double x,double y,double z,double r,double d)
+{
+   int i,k;
+   glEnable(GL_TEXTURE_2D);
+   //  Save transformation
+   glPushMatrix();
+   //  Offset and scale
+   glTranslated(x,y,z);
+   glRotated(yaw,0,1,0);   
+   glScaled(r,r,d);
+   //  Head & Tail
+   glColor3f(1,1,1);
+   for (i=1;i>=-1;i-=2)
+   {
+      // glBindTexture(GL_TEXTURE_2D,i>0?tail:head);
+      glNormal3f(0,0,i);
+      glBegin(GL_TRIANGLE_FAN);
+      glTexCoord2f(0.5,0.5);
+      glVertex3f(0,0,i);
+      for (k=0;k<=360;k+=10)
+      {
+         glTexCoord2f(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
+         glVertex3f(i*Cos(k),Sin(k),i);
+      }
+      glEnd();
+   }
+   //  Edge
+   // glBindTexture(GL_TEXTURE_2D,edge);
+   glBindTexture(GL_TEXTURE_2D,sky[9]);
+   glColor3f(0,0,0);
+   glBegin(GL_QUAD_STRIP);
+   for (k=0;k<=360;k+=10)
+   {
+      glNormal3f(Cos(k),Sin(k),0);
+      glTexCoord2f(0,0.5*k); glVertex3f(Cos(k),Sin(k),+1);
+      glTexCoord2f(1,0.5*k); glVertex3f(Cos(k),Sin(k),-1);
+   }
+   glEnd();
+   //  Undo transformations
+   glPopMatrix();
+   glDisable(GL_TEXTURE_2D);
+}
+// static void shadowcoin(double x,double y,double z,double r,double d)
+// {
+//    int i,k;
+//    // glEnable(GL_TEXTURE_2D);
+//    //  Save transformation
+//    glPushMatrix();
+//    //  Offset and scale
+//    glTranslated(x,y,z);
+//    glRotated(yaw,0,1,0);   
+//    glScaled(r,r,d);
+//    glEnable(GL_BLEND);
+//    // glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
+//    //  Head & Tail
+//    glColor3f(1,1,1);
+//    for (i=1;i>=-1;i-=2)
+//    {
+//       // glBindTexture(GL_TEXTURE_2D,i>0?tail:head);
+//       glColor4f(0,0,0,0.4);
+//       glNormal3f(0,0,i);
+//       glBegin(GL_TRIANGLE_FAN);
+//       glTexCoord2f(0.5,0.5);
+//       glVertex3f(0,0,i);
+//       for (k=0;k<=360;k+=10)
+//       {
+//          glTexCoord2f(0.5*Cos(k)+0.5,0.5*Sin(k)+0.5);
+//          glVertex3f(i*Cos(k),Sin(k),i);
+//       }
+//       glEnd();
+//    }
+//    //  Edge
+//    // glBindTexture(GL_TEXTURE_2D,edge);
+//    // glBindTexture(GL_TEXTURE_2D,sky[9]);
+//    glColor4f(0,0,0,0.6);
+//    // glColor3f(1.00,0.77,0.36);
+//    glBegin(GL_QUAD_STRIP);
+//    for (k=0;k<=360;k+=10)
+//    {
+//       glNormal3f(Cos(k),Sin(k),0);
+//       glTexCoord2f(0,0.5*k); glVertex3f(Cos(k),Sin(k),+1);
+//       glTexCoord2f(1,0.5*k); glVertex3f(Cos(k),Sin(k),-1);
+//    }
+//    glEnd();
+//    //  Undo transformations
+//    glPopMatrix();
+//    glDisable(GL_TEXTURE_2D);
+// }
+// //draws the wheels of the car using cones
+// static void wheels(double x,double y,double z,
+//                  double dx,double dy,double dz,
+//                  double th)
+// {
+//    // glutSolidTeapot(3.5);
+//    glPushMatrix();
+//    //  Offset, scale and rotate
+//    glTranslated(x,y,z);
+//    glRotated(th,0,1,0);
+//    glScaled(dx,dy,dz);
+//    glutSolidCone(3,.5,10,10);
+//    glPopMatrix();
+// }
+
+// draws body of tank
 void chasis(double x,double y,double z,
                  double dx,double dy,double dz,
                  double th)
@@ -243,10 +353,13 @@ void chasis(double x,double y,double z,
    glScaled(dx,dy,dz);
    //  Enable textures
    glEnable(GL_TEXTURE_2D);
-   glColor3f(1,1,1);
-   glBindTexture(GL_TEXTURE_2D,sky[2]);
+   // glColor3f(1,1,1);
+   glBindTexture(GL_TEXTURE_2D,sky[4]);
+
+
    //  Front
-   glColor3f(1,0,0);
+   // glColor3f(1,0,0);
+   // glBindTexture(GL_TEXTURE_2D,sky[6]);
    glBegin(GL_QUADS);
    glNormal3f( 0, 0, 1);
    glTexCoord2f(0,0); glVertex3f(-1,-1, 1);
@@ -254,8 +367,10 @@ void chasis(double x,double y,double z,
    glTexCoord2f(1,1); glVertex3f(+1,+1, 1);
    glTexCoord2f(0,1); glVertex3f(-1,+1, 1);
    glEnd();
+
    //  Back
-   glColor3f(0,0,1);
+   // glColor3f(1,0,0);
+   // glBindTexture(GL_TEXTURE_2D,sky[8]);
    glBegin(GL_QUADS);
    glNormal3f( 0, 0,-1);
    glTexCoord2f(0,0); glVertex3f(+1,-1,-1);
@@ -264,7 +379,9 @@ void chasis(double x,double y,double z,
    glTexCoord2f(0,1); glVertex3f(+1,+1,-1);
    glEnd();
    //  Right
-   glColor3f(1,1,0);
+   // glColor3f(1,1,0);
+   // glBindTexture(GL_TEXTURE_2D,sky[6]);
+   glColor3f(1,0,0);
    glBegin(GL_QUADS);
    glNormal3f(+1, 0, 0);
    glTexCoord2f(0,0); glVertex3f(+1,-1,+1);
@@ -273,7 +390,8 @@ void chasis(double x,double y,double z,
    glTexCoord2f(0,1); glVertex3f(+1,+1,+1);
    glEnd();
    //  Left
-   glColor3f(0,1,0);
+   // glColor3f(0,1,0);
+   // glBindTexture(GL_TEXTURE_2D,sky[5]);
    glBegin(GL_QUADS);
    glNormal3f(-1, 0, 0);
    glTexCoord2f(0,0); glVertex3f(-1,-1,-1);
@@ -282,7 +400,8 @@ void chasis(double x,double y,double z,
    glTexCoord2f(0,1); glVertex3f(-1,+1,-1);
    glEnd();
    //  Top
-   glColor3f(0,1,1);
+   // glColor3f(0,1,1);
+   // glBindTexture(GL_TEXTURE_2D,sky[7]);
    glBegin(GL_QUADS);
    glNormal3f( 0,+1, 0);
    glTexCoord2f(0,0); glVertex3f(-1,+1,+1);
@@ -291,7 +410,101 @@ void chasis(double x,double y,double z,
    glTexCoord2f(0,1); glVertex3f(-1,+1,-1);
    glEnd();
    //  Bottom
-   glColor3f(1,0,1);
+   // glColor3f(1,0,1);
+   glBegin(GL_QUADS);
+   glNormal3f( 0,-1, 0);
+   glTexCoord2f(0,0); glVertex3f(-1,-1,-1);
+   glTexCoord2f(1,0); glVertex3f(+1,-1,-1);
+   glTexCoord2f(1,1); glVertex3f(+1,-1,+1);
+   glTexCoord2f(0,1); glVertex3f(-1,-1,+1);
+   glEnd();
+   //  Undo transformations and textures
+   glPopMatrix();
+   glDisable(GL_TEXTURE_2D);
+}
+// draws body of tank
+void shadowchasis(double x,double y,double z,
+                 double dx,double dy,double dz,
+                 double th)
+{
+   //  Set specular color to white
+   float white[] = {1,1,1,1};
+   // float Emission2[]  = {0.0,1.0,1.0,1.0};
+   // glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,shinyvec);
+   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
+   // glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);//Emission2);
+   //  Save transformation
+   glPushMatrix();
+   //  Offset, scale and rotate
+   glTranslated(x,y,z);
+   glRotated(yaw,0,1,0);
+   glScaled(dx,dy,dz);
+   //  Enable textures
+   glEnable(GL_BLEND);
+   glColor3f(1,1,1);
+   
+   glEnable(GL_TEXTURE_2D);
+   // glColor3f(1,1,1);
+   glBindTexture(GL_TEXTURE_2D,sky[4]);
+
+
+   //  Front
+   // glColor3f(1,0,0);
+   // glBindTexture(GL_TEXTURE_2D,sky[6]);
+   glBegin(GL_QUADS);
+   glColor4f(0,0,0,0.6);
+   glTexCoord2f(0,0); glVertex3f(-1,-1, 1);
+   glTexCoord2f(1,0); glVertex3f(+1,-1, 1);
+   glTexCoord2f(1,1); glVertex3f(+1,+1, 1);
+   glTexCoord2f(0,1); glVertex3f(-1,+1, 1);
+   glEnd();
+
+   //  Back
+   glColor3f(1,0,0);
+   // glBindTexture(GL_TEXTURE_2D,sky[8]);
+   glBegin(GL_QUADS);
+   glColor4f(0,0,0,0.6);
+   glTexCoord2f(0,0); glVertex3f(+1,-1,-1);
+   glTexCoord2f(1,0); glVertex3f(-1,-1,-1);
+   glTexCoord2f(1,1); glVertex3f(-1,+1,-1);
+   glTexCoord2f(0,1); glVertex3f(+1,+1,-1);
+   glEnd();
+    // Right
+   // glColor3f(1,1,0);
+   // glBindTexture(GL_TEXTURE_2D,sky[6]);
+   glColor4f(0,0,0,0.6);
+   glBegin(GL_QUADS);
+   glNormal3f(+1, 0, 0);
+   glTexCoord2f(0,0); glVertex3f(+1,-1,+1);
+   glTexCoord2f(1,0); glVertex3f(+1,-1,-1);
+   glTexCoord2f(1,1); glVertex3f(+1,+1,-1);
+   glTexCoord2f(0,1); glVertex3f(+1,+1,+1);
+   glEnd();
+   //  Left
+   // glColor3f(0,1,0);
+   // glBindTexture(GL_TEXTURE_2D,sky[5]);
+   glColor4f(0,0,0,0.6);
+   glBegin(GL_QUADS);
+   glNormal3f(-1, 0, 0);
+   glTexCoord2f(0,0); glVertex3f(-1,-1,-1);
+   glTexCoord2f(1,0); glVertex3f(-1,-1,+1);
+   glTexCoord2f(1,1); glVertex3f(-1,+1,+1);
+   glTexCoord2f(0,1); glVertex3f(-1,+1,-1);
+   glEnd();
+   // //  Top
+   // glColor3f(0,1,1);
+   // glBindTexture(GL_TEXTURE_2D,sky[7]);
+   glColor4f(0,0,0,0.6);
+   glBegin(GL_QUADS);
+   glNormal3f( 0,+1, 0);
+   glTexCoord2f(0,0); glVertex3f(-1,+1,+1);
+   glTexCoord2f(1,0); glVertex3f(+1,+1,+1);
+   glTexCoord2f(1,1); glVertex3f(+1,+1,-1);
+   glTexCoord2f(0,1); glVertex3f(-1,+1,-1);
+   glEnd();
+   //  Bottom
+   // glColor3f(1,0,1);
+   glColor4f(0,0,0,0.6);
    glBegin(GL_QUADS);
    glNormal3f( 0,-1, 0);
    glTexCoord2f(0,0); glVertex3f(-1,-1,-1);
@@ -306,9 +519,22 @@ void chasis(double x,double y,double z,
 static void realKart()
 {  // basic body of car
    chasis(X,Y,Z,  .85,.6,.60, 0);
-
-   chasis(X,Y+1,Z,  .1,.2,.40, 0);
+   // top
+   chasis(X,Y+.8,Z,  .4,.13,.40, 0);
+   // wheels(X,Y+.8,Z+.5,  .4,.18,.40, 0);   
+   // wheels(X,Y+.8,Z-.5,  .4,.18,.40, 180);  
+   coin(X,Y,Z,.5,.8) ;
 }
+static void shadowrealKart()
+{  // basic body of car
+   shadowchasis(X,.5,Z,  .85,.5,.60, 0);
+   // top
+   // shadowchasis(X,1,Z,  .4,.13,.40, 0);
+   // wheels(X,Y+.8,Z+.5,  .4,.18,.40, 0);   
+   // wheels(X,Y+.8,Z-.5,  .4,.18,.40, 180);  
+   // shadowcoin(X,Y+.1,Z,.5,.8);
+}
+
 
 /* 
  *  Draw sky box
@@ -987,6 +1213,15 @@ void display()
    quest(-.4,0.5,2.9,  .3,.3,.3, 0);
    quest(3.6,0.5,2.9,  .3,.3,.3, 0);
    quest(4.8,0.5,1.1,  .3,.3,.3, 0);
+   // non main boxes
+   quest(-15.0,0.5,-10,  .3,.3,.3, 0);
+   quest(-18.0,0.5,-9.7,  .3,.3,.3, 0);
+   quest(-16.7,0.5,-13.2,  .3,.3,.3, 0);
+   quest(4.7,0.5,-3.8,  .3,.3,.3, 0);
+   quest(7.1,0.5,-6.3,  .3,.3,.3, 0);
+   quest(9.1,0.5,-4.3,  .3,.3,.3, 0);
+   quest(11,0.5,-6,  .3,.3,.3, 0);
+   quest(14.3,0.5,-4.3,  .3,.3,.3, 0);
    realKart();
 
  // ---
@@ -995,13 +1230,14 @@ void display()
       // causes the stack overflow error. 
    // glPushAttrib(GL_ENABLE_BIT);
    // Shadows **
+   // glPushAttrib(GL_ENABLE_BIT);
 
    glDisable(GL_LIGHTING);
    // glColor3f(0.3,0.3,0.3);
    //  Blended color
    // *** uncomment this to enable shadows. 
    // glEnable(GL_BLEND);
-   // glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
    glColor4f(0,0,0,0.4);
    //  Draw flattened scene
    glPushMatrix();
@@ -1020,10 +1256,19 @@ void display()
    shadowquest(-.4,0.5,2.9,  .3,.3,.3, 0);
    shadowquest(3.6,0.5,2.9,  .3,.3,.3, 0);
    shadowquest(4.8,0.5,1.1,  .3,.3,.3, 0);
+   shadowrealKart();
+   shadowquest(-15.0,0.5,-10,  .3,.3,.3, 0);
+   shadowquest(-18.0,0.5,-9.7,  .3,.3,.3, 0);
+   shadowquest(-16.7,0.5,-13.2,  .3,.3,.3, 0);
+   shadowquest(4.7,0.5,-3.8,  .3,.3,.3, 0);
+   shadowquest(7.1,0.5,-6.3,  .3,.3,.3, 0);
+   shadowquest(9.1,0.5,-4.3,  .3,.3,.3, 0);
+   shadowquest(11,0.5,-6,  .3,.3,.3, 0);
+   shadowquest(14.3,0.5,-4.3,  .3,.3,.3, 0);
    // hedge shadows
    shadowHedges();
     //  Draw flight of F16s
-   DrawFlight(X,Y,Z , Dx,Dy,Dz , Ux,Uy,Uz);
+   // DrawFlight(X,Y,Z , Dx,Dy,Dz , Ux,Uy,Uz);
    // hedges();
    kart(X,Y+3,Z,1,1,1,0);
    // scene();
@@ -1446,6 +1691,16 @@ int main(int argc,char* argv[])
    sky[1] = LoadTexBMP("sky1.bmp");
    sky[2] = LoadTexBMP("crate.bmp");
    sky[3] = LoadTexBMP("question.bmp");
+   sky[4] = LoadTexBMP("purple.bmp");
+   // sky[4] = LoadTexBMP("kart_front.bmp");
+   // sky[5] = LoadTexBMP("kart_left.bmp");
+   // sky[6] = LoadTexBMP("kart_right.bmp");
+   // sky[7] = LoadTexBMP("kart_top.bmp");
+   // sky[8] = LoadTexBMP("kart_back.bmp");
+   sky[9] = LoadTexBMP("edge.bmp");
+   
+   
+   
    // glVertexPointer(3, GL_FLOAT, 0, Mario_Kart_Jose_Ethan_finalVerts);
    // glNormalPointer(GL_FLOAT, 0, Mario_Kart_Jose_Ethan_finalNormals);
    // glTexCoordPointer(2, GL_FLOAT, 0, Mario_Kart_Jose_Ethan_finalTexCoords);
