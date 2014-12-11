@@ -20,7 +20,7 @@
 #include "CSCIx229.h"
 #include "F16.h"
 #include <math.h>
-#import "./Mario_Kart_Jose_Ethan_final.h"
+
 // #include "mario_kart.h"
 int    fly=0;    //  Animated flight
 int    axes=0;   //  Display axes
@@ -932,36 +932,36 @@ static void shadowquest(double x,double y,double z,
    glPopMatrix();
    glDisable(GL_TEXTURE_2D);
 }
-// kart drawing
-static void kart(double x,double y,double z,
-                 double dx,double dy,double dz,
-                 double th)
-{
-   //  Set specular color to white
-   float white[] = {1,1,1,1};
-   // float Emission2[]  = {0.0,1.0,1.0,1.0};
-   // glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,shinyvec);
-   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
-   // glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);//Emission2);
-   //  Save transformation
-   glPushMatrix();
-   //  Offset, scale and rotate
-   glTranslated(x,y,z);
-   glRotated(th,0,1,0);
-   glScaled(dx,dy,dz);
-   //  Enable textures
-   // glEnable(GL_TEXTURE_2D); //*
-   // glColor3f(1,1,1); //*
-   // glBindTexture(GL_TEXTURE_2D,sky[2]); //*
-   glVertexPointer(3, GL_FLOAT, 0, Mario_Kart_Jose_Ethan_finalVerts);
-   glNormalPointer(GL_FLOAT, 0, Mario_Kart_Jose_Ethan_finalNormals); 
-   glTexCoordPointer(2, GL_FLOAT, 0, Mario_Kart_Jose_Ethan_finalTexCoords);
+// // kart drawing
+// static void kart(double x,double y,double z,
+//                  double dx,double dy,double dz,
+//                  double th)
+// {
+//    //  Set specular color to white
+//    float white[] = {1,1,1,1};
+//    // float Emission2[]  = {0.0,1.0,1.0,1.0};
+//    // glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,shinyvec);
+//    glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
+//    // glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);//Emission2);
+//    //  Save transformation
+//    glPushMatrix();
+//    //  Offset, scale and rotate
+//    glTranslated(x,y,z);
+//    glRotated(th,0,1,0);
+//    glScaled(dx,dy,dz);
+//    //  Enable textures
+//    // glEnable(GL_TEXTURE_2D); //*
+//    // glColor3f(1,1,1); //*
+//    // glBindTexture(GL_TEXTURE_2D,sky[2]); //*
+//    glVertexPointer(3, GL_FLOAT, 0, Mario_Kart_Jose_Ethan_finalVerts);
+//    glNormalPointer(GL_FLOAT, 0, Mario_Kart_Jose_Ethan_finalNormals); 
+//    glTexCoordPointer(2, GL_FLOAT, 0, Mario_Kart_Jose_Ethan_finalTexCoords);
    
-   glDrawArrays(GL_TRIANGLES, 0, Mario_Kart_Jose_Ethan_finalNumVerts);
-   //  Undo transformations and textures
-   glPopMatrix();
-   // glDisable(GL_TEXTURE_2D); //*
-}
+//    glDrawArrays(GL_TRIANGLES, 0, Mario_Kart_Jose_Ethan_finalNumVerts);
+//    //  Undo transformations and textures
+//    glPopMatrix();
+//    // glDisable(GL_TEXTURE_2D); //*
+// }
 
 // Draw Boxes making up barrier, they have to be .5 up off the ground else there 
 // are double shadows cast for some reason
@@ -969,63 +969,63 @@ static void shadowHedges()
 {
 
    // row on tech 
-   for (int x=0;x<25;x++){
-      shadowrect(-21.8+1.70*x,0.5,-2.1,  .85,.6,.60, 0);
+   for (int m1=0;m1<25;m1++){
+      shadowrect(-21.8+1.70*m1,0.5,-2.1,  .85,.6,.60, 0);
    }
    // far right bottom right, vertical
-   for (int x=0;x<5;x++){
-      shadowrect(-16.1-1.70*x,0.5,10.8,  .85,.6,.60, 0);
+   for (int m2=0;m2<5;m2++){
+      shadowrect(-16.1-1.70*m2,0.5,10.8,  .85,.6,.60, 0);
    }
    // second left barrier
-   for (int x=0;x<25;x++){
-      shadowrect(3.5*dim-1.70*x,0.5,-9.5,  .85,.6,.60, 0);
+   for (int m3=0;m3<25;m3++){
+      shadowrect(3.5*dim-1.70*m3,0.5,-9.5,  .85,.6,.60, 0);
    }
    // bottom right boxes horizontal
-   for (int x=0;x<7;x++){
-      shadowrect(-15.8,0.5,-.9+1.70*x,  .85,.6,.60, 90);
+   for (int m4=0;m4<7;m4++){
+      shadowrect(-15.8,0.5,-.9+1.70*m4,  .85,.6,.60, 90);
    }
    // long bottom wall
-   for (int x=0;x<23;x++){
-      shadowrect((-.73*3.5*dim),0.5,(-.61*3.5*dim)+1.70*x,  .85,.6,.60, 90);
+   for (int m5=0;m5<23;m5++){
+      shadowrect((-.73*3.5*dim),0.5,(-.61*3.5*dim)+1.70*m5,  .85,.6,.60, 90);
    }
    // far left wall vert
-   for (int x=0;x<24;x++){
-      shadowrect(-23+1.70*x,0.5,-19.5,  .85,.6,.60, 0);
+   for (int m6=0;m6<24;m6++){
+      shadowrect(-23+1.70*m6,0.5,-19.5,  .85,.6,.60, 0);
    }
    // top right wall horizontal
-   for (int x=0;x<16;x++){
-      shadowrect(-21.8+(1.70*25),0.5,-1.9+1.70*x,  .85,.6,.60, 90);
+   for (int m7=0;m7<16;m7++){
+      shadowrect(-21.8+(1.70*25),0.5,-1.9+1.70*m7,  .85,.6,.60, 90);
    }
    // mid right wall horizontal
-   for (int x=0;x<15;x++){
-      shadowrect(-1.3,0.5,(3.5*dim)-(1.70*x), .85,.6,.60, 90);
+   for (int m8=0;m8<15;m8++){
+      shadowrect(-1.3,0.5,(3.5*dim)-(1.70*m8), .85,.6,.60, 90);
    }
    // top right wall vertical
-   for (int x=0;x<7;x++){
-      shadowrect(20.2-1.70*x,0.5,23.8,  .85,.6,.60, 0);
+   for (int m9=0;m9<7;m9++){
+      shadowrect(20.2-1.70*m9,0.5,23.8,  .85,.6,.60, 0);
    }
 }
 static void hedges() 
 {
    // variables: at [(x,y,z) dimentions,(dx,dy,dz)], rotated th about the y axis
    // row on tech 
-   for (int x=0;x<25;x++){
-      rect(-21.8+1.70*x,0,-2.1,  .85,.6,.60, 0);
+   for (int h1=0;h1<25;h1++){
+      rect(-21.8+1.70*h1,0,-2.1,  .85,.6,.60, 0);
    }
    // collision with first barrier
-   if ((-21.8+(1.70*25) >=X) && (X>=-21.8) && (-0.9>=Z) && (Z>=-1.8)) { 
-         driveX += 1;
-         driveZ += 1;
+   if ((-21.8+(1.70*25) >=X) && (X>=-21.8) && (-0.3>=Z) && (Z>=-1.8)) { 
+         // driveX += .4;
+         driveZ += .4;
    }
    if ((-21.8+(1.70*25) >=X) && (X>=-21.8) && (-2.9>=Z) && (Z>=-3.4)) {
-         driveX -= 1;
-         driveZ -= 1;
+         // driveX -= .4;
+         driveZ -= .4;
    }
    // far right bottom right, vertical
-   for (int x=0;x<5;x++){
-      rect(-16.1-1.70*x,0,10.8,  .85,.6,.60, 0);
+   for (int h2=0;h2<5;h2++){
+      rect(-16.1-1.70*h2,0,10.8,  .85,.6,.60, 0);
    }
-   if ((-16.2-(1.70*4) <=X) && (X<=-16.2) && (11.2>=Z) && (Z>=9)) { 
+   if ((-16.2-(1.70*4) <=X) && (X<=-16.2) && (11.8>=Z) && (Z>=9)) { 
          driveX += 1;
          driveZ += 1;
    }
@@ -1038,8 +1038,8 @@ static void hedges()
    // box CrashCoords[5];
 
    // second left barrier
-   for (int x=0;x<25;x++){
-      rect(3.5*dim-1.70*x,0,-9.5,  .85,.6,.60, 0);
+   for (int h3=0;h3<25;h3++){
+      rect(3.5*dim-1.70*h3,0,-9.5,  .85,.6,.60, 0);
    }
    // collision with second left barrier
    if ((3.5*dim >=X) && (X>=3.5*dim-(1.7*25)) && (-9.5>=Z) && (Z>=-11.0)) { // 8.9 10.1
@@ -1056,10 +1056,10 @@ static void hedges()
 
 
    // bottom right boxes horizontal
-   for (int x=0;x<7;x++){
-      rect(-15.8,0,-.9+1.70*x,  .85,.6,.60, 90);
+   for (int h4=0;h4<7;h4++){
+      rect(-15.8,0,-.9+1.70*h4,  .85,.6,.60, 90);
    }
-   if ((-17 <=X) && (X<=-15.9) && (-.7<=Z) && (Z<=11.3)) { // 8.9 10.1
+   if ((-17 <=X) && (X<=-14.6) && (-.7<=Z) && (Z<=11.3)) { // 8.9 10.1
          driveX += 1;
          driveZ += 1;
    }
@@ -1067,69 +1067,73 @@ static void hedges()
 
 
    // long bottom wall
-   for (int x=0;x<23;x++){
-      rect((-.73*3.5*dim),0,(-.61*3.5*dim)+1.70*x,  .85,.6,.60, 90);
+   for (int h5=0;h5<23;h5++){
+      rect((-.73*3.5*dim),0,(-.61*3.5*dim)+1.70*h5,  .85,.6,.60, 90);
    }
    if ((-22.2 >=X) && (X>=-23.1) && ((-.61*3.5*dim)<=Z) && (Z<=(-.61*3.5*dim)+1.70*23)) { // 8.9 10.1
          driveX += 1;
-         driveZ += 1;
+         // driveZ += 1;
    }
-   if ((-23.7 >=X) && (X>=-25.4) && ((-.61*3.5*dim)<=Z) && (Z<=(-.61*3.5*dim)+1.70*23)) { // 8.9 10.1
+   if ((-23.7 >=X) && (X>=-25.9) && ((-.61*3.5*dim)<=Z) && (Z<=(-.61*3.5*dim)+1.70*23)) { // 8.9 10.1
          driveX -= 1;
-         driveZ -= 1;
+         // driveZ -= 1;
    }
 
 
 
    // far left wall vert
-   for (int x=0;x<24;x++){
-      rect(-23+1.70*x,0,-19.5,  .85,.6,.60, 0);
+   for (int h6=0;h6<24;h6++){
+      rect(-23+1.70*h6,0,-19.5,  .85,.6,.60, 0);
    }
    // collision
-   if ((-23+1.70*24 >=X) && (X>=-24) && (-20.4<=Z) && (Z<=-19.4)) { 
-         driveX -= 1;
+   if ((-23+1.70*24 >=X) && (X>=-24) && (-20.9<=Z) && (Z<=-19.4)) { 
+         // driveX -= 1;
          driveZ -= 1;
    }
    if ((-23+1.70*24 >=X) && (X>=-24) && (-20<=Z) && (Z<=-18.2)) { 
-         driveX += 1;
+         // driveX += 1;
          driveZ += 1;
    }
 
    // top right wall horizontal
-   for (int x=0;x<16;x++){
-      rect(-21.8+(1.70*25),0,-1.9+1.70*x,  .85,.6,.60, 90);
+   for (int h7=0;h7<16;h7++){
+      rect(-21.8+(1.70*25),0,-1.9+1.70*h7,  .85,.6,.60, 90);
    }
-   if ((18<=X) && (X<=20.0) && (-1.9<=Z) && (Z<=-1.9+1.70*16)) { // 8.9 10.1
+   if ((18<=X) && (X<=20.8) && (-2.4<=Z) && (Z<=-1.9+1.70*16)) { // 8.9 10.1
          driveX -= 1;
-         driveZ -= 1;
+         // driveZ -= 1;
    }
-   if ((20.9 >=X) && (X>=19.0) && (-1.9<=Z) && (Z<=-1.9+1.70*16)) { // 8.9 10.1
+   if ((21.9 >=X) && (X>=19.0) && (-3.9<=Z) && (Z<=-1.5+1.70*16)) { // 8.9 10.1
          driveX += 1;
-         driveZ += 1;
+         // driveZ += 1;
    }
    // mid right wall horizontal
-   for (int x=0;x<15;x++){
-      rect(-1.3,0,(3.5*dim)-(1.70*x), .85,.6,.60, 90);
+   for (int h8=0;h8<15;h8++){
+      rect(-1.3,0,(3.5*dim)-(1.70*h8), .85,.6,.60, 90);
    }
-   if ((-3.6<=X) && (X<=-1.85) && ((3.5*dim)-(1.70*15)<=Z) && (Z<=3.5*dim)) { // 8.9 10.1
+   if ((-4.6<=X) && (X<=-1.85) && ((3.5*dim)-(1.70*16)<=Z) && (Z<=3.5*dim)) { // 8.9 10.1
          driveX -= 1;
-         driveZ -= 1;
+         // driveZ -= 1;
    }
-   if ((-1.3 >=X) && (X>=-2.7) && ((3.5*dim)-(1.70*15)<=Z) && (Z<=3.5*dim)) { // 8.9 10.1
+   if ((.8 >=X) && (X>=-2.7) && ((3.5*dim)-(1.70*15)<=Z) && (Z<=3.5*dim)) { // 8.9 10.1
          driveX += 1;
+         // driveZ += 1;
+   }
+   if ((-.8 >=X) && (X>=-2.7) && ((3.5*dim)-(1.70*15)<=Z) && (Z<=(3.5*dim)-(1.70*13))) { // 8.9 10.1
+         // driveX += 1;
          driveZ += 1;
    }
    // top right wall vertical
-   for (int x=0;x<7;x++){
-      rect(20.2-1.70*x,0,23.8,  .85,.6,.60, 0);
+   for (int h9=0;h9<7;h9++){
+      rect(20.2-1.70*h9,0,23.8,  .85,.6,.60, 0);
    }
    // collision
    if ((20.2>=X) && (X>=20.1-1.70*7) && (22.1<=Z) && (Z<=23.9)) { 
-         driveX -= 1;
+         // driveX -= .3;
          driveZ -= 1;
    }
    if ((20.2>=X) && (X>=20.1-1.70*7) && (24.8>=Z) && (Z>=23.4)) { 
-         driveX += 1;
+         // driveX += .3;
          driveZ += 1;
    }
    
@@ -1196,13 +1200,13 @@ void display()
 
    // collision detection
    // box edges
-   if (X > 3.5*dim-2)
+   if (X > 3.5*dim-1)
       driveX -= 1;
-   if (X < -3.5*dim)
+   if (X < -3.5*dim+1)
       driveX += 1;
-   if (Z > 3.5*dim-2)
+   if (Z > 3.5*dim-1)
       driveZ -= 1;
-   if (Z < -3.5*dim+2)
+   if (Z < -3.5*dim+1)
       driveZ += 1;
    // question mark boxes
    quest(-2.0,0.5,-.1,  .3,.3,.3, 0);
@@ -1270,7 +1274,7 @@ void display()
     //  Draw flight of F16s
    // DrawFlight(X,Y,Z , Dx,Dy,Dz , Ux,Uy,Uz);
    // hedges();
-   kart(X,Y+3,Z,1,1,1,0);
+   // kart(X,Y+3,Z,1,1,1,0);
    // scene();
    glPopMatrix();
 // ---
@@ -1541,6 +1545,7 @@ void key(unsigned char ch,int x,int y)
       Yl += 0.1;
    else if (ch == 'c' || ch == 'C'){
       pit = 1- pit;
+      ph = 15;
    }
    // driver controls
    else if (ch == 'y' || ch == 'Y'){
